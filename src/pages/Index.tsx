@@ -5,7 +5,7 @@ import { toast } from '@/hooks/use-toast';
 
 const SUPPORT_URL = 'https://functions.poehali.dev/4996c61d-5098-4c39-a182-c240730dff94';
 
-const HERO_BG = 'https://cdn.poehali.dev/projects/4765bfc0-61a0-4e67-ad63-ff9e49f9d9b5/files/665560e5-b9e9-4515-aeae-a6d3940f6a3d.jpg';
+const HERO_BG = 'https://cdn.poehali.dev/projects/4765bfc0-61a0-4e67-ad63-ff9e49f9d9b5/bucket/df80032b-75e6-4640-957b-a22532da8f7c.jpg';
 
 const NAV = [
   { id: 'home', label: 'Главная', icon: 'Home' },
