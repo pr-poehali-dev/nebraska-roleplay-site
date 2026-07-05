@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+
+const SUPPORT_URL = 'https://functions.poehali.dev/4996c61d-5098-4c39-a182-c240730dff94';
 
 const HERO_BG = 'https://cdn.poehali.dev/projects/4765bfc0-61a0-4e67-ad63-ff9e49f9d9b5/files/665560e5-b9e9-4515-aeae-a6d3940f6a3d.jpg';
 
@@ -33,10 +36,37 @@ const STATS = [
 
 export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [nickname, setNickname] = useState('');
+  const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
 
   const scrollTo = (id: string) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const submitSupport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nickname.trim() || !message.trim()) {
+      toast({ title: 'Заполните оба поля', description: 'Укажите ник и текст обращения' });
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch(SUPPORT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, message }),
+      });
+      if (!res.ok) throw new Error();
+      toast({ title: 'Обращение отправлено!', description: 'Команда поддержки свяжется с тобой в ближайшее время.' });
+      setNickname('');
+      setMessage('');
+    } catch {
+      toast({ title: 'Не удалось отправить', description: 'Попробуй ещё раз чуть позже.', variant: 'destructive' });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -231,11 +261,12 @@ export default function Index() {
               <h3 className="font-display font-bold text-3xl mb-3">Нужна помощь?</h3>
               <p className="text-muted-foreground">Опиши проблему в форме — команда поддержки свяжется с тобой в кратчайшие сроки. Мы помогаем 24/7 без выходных.</p>
             </div>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-              <input placeholder="Твой ник в игре" className="w-full h-12 px-4 rounded-xl bg-secondary/50 border border-border outline-none focus:border-primary transition-colors" />
-              <textarea placeholder="Опиши свой вопрос..." rows={3} className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border outline-none focus:border-primary transition-colors resize-none" />
-              <Button className="w-full bg-primary text-white hover:bg-primary/90 font-semibold h-12">
-                <Icon name="SendHorizontal" size={16} /> Отправить обращение
+            <form className="space-y-3" onSubmit={submitSupport}>
+              <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Твой ник в игре" className="w-full h-12 px-4 rounded-xl bg-secondary/50 border border-border outline-none focus:border-primary transition-colors" />
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Опиши свой вопрос..." rows={3} className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border outline-none focus:border-primary transition-colors resize-none" />
+              <Button type="submit" disabled={sending} className="w-full bg-primary text-white hover:bg-primary/90 font-semibold h-12">
+                {sending ? <Icon name="Loader2" size={16} className="animate-spin" /> : <Icon name="SendHorizontal" size={16} />}
+                {sending ? 'Отправляем...' : 'Отправить обращение'}
               </Button>
             </form>
           </div>
